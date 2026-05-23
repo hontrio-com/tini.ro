@@ -130,7 +130,6 @@ export async function getShippingPrices(order: {
   const raw: Array<Record<string, unknown>> = Array.isArray(data) ? data : (data.list ?? data.services ?? []);
 
   return raw
-    .filter((s) => !s.errors || (s.errors as unknown[]).length === 0)
     .map((s) => ({
       service_id: s.service_id as number,
       service_name: s.service_name as string ?? '',
@@ -138,7 +137,8 @@ export async function getShippingPrices(order: {
       price: parseFloat(String(s.final_total ?? s.total ?? s.price ?? 0)),
       currency: 'RON',
       delivery_days: s.delivery_days as number ?? undefined,
-    }));
+    }))
+    .filter((s) => s.price > 0);
 }
 
 // --- Create order (AWB) ---
