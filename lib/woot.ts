@@ -106,7 +106,7 @@ export async function getShippingPrices(order: {
   const res = await wootFetch('/orders/prices', {
     method: 'POST',
     body: JSON.stringify({
-      sender_id,
+      sender: { address_id: sender_id },
       receiver: {
         company: 0,
         contact: order.customer_name,
@@ -117,7 +117,7 @@ export async function getShippingPrices(order: {
         address: order.customer_address,
       },
       parcels: buildParcels(order.quantity),
-      cod: order.total_price,
+      repayment: order.total_price,
     }),
   });
 
@@ -166,7 +166,7 @@ export async function createWootOrder(
     method: 'POST',
     body: JSON.stringify({
       service_id: serviceId,
-      sender_id,
+      sender: { address_id: sender_id },
       receiver: {
         company: 0,
         contact: order.customer_name,
@@ -175,11 +175,10 @@ export async function createWootOrder(
         county: order.customer_county,
         city: order.customer_city,
         address: order.customer_address,
-        info: order.notes ?? undefined,
       },
       parcels: buildParcels(order.quantity),
-      cod: order.total_price,
-      payment: 'credit',
+      repayment: order.total_price,
+      payment_method: 'credit',
     }),
   });
 
