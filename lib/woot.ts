@@ -127,17 +127,18 @@ export async function getShippingPrices(order: {
   }
 
   const data = await res.json();
-  // Normalize response — WOOT returns list or array at root
   const raw: Array<Record<string, unknown>> = Array.isArray(data) ? data : (data.list ?? data.services ?? []);
 
-  return raw.map((s) => ({
-    service_id: s.service_id as number ?? s.id as number,
-    service_name: s.service_name as string ?? s.name as string ?? '',
-    courier_name: s.courier_name as string ?? s.courier as string ?? '',
-    price: parseFloat(String(s.price ?? s.total_price ?? 0)),
-    currency: s.currency as string ?? 'RON',
-    delivery_days: s.delivery_days as number ?? s.days as number ?? undefined,
-  }));
+  return raw
+    .filter((s) => !s.errors || (s.errors as unknown[]).length === 0)
+    .map((s) => ({
+      service_id: s.service_id as number,
+      service_name: s.service_name as string ?? '',
+      courier_name: s.courier_name as string ?? '',
+      price: parseFloat(String(s.final_total ?? s.total ?? s.price ?? 0)),
+      currency: 'RON',
+      delivery_days: s.delivery_days as number ?? undefined,
+    }));
 }
 
 // --- Create order (AWB) ---
