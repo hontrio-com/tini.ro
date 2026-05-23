@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Order not found' }, { status: 404 });
       }
 
-      const result = await createWootOrder(serviceId, order, courierName ?? '');
+      const result = await createWootOrder(serviceId, order);
 
       // Save AWB info to Supabase
       await supabase.from('orders').update({
