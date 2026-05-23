@@ -150,44 +150,40 @@ function AwbModal({ order, token, onClose, onCreated }: AwbModalProps) {
           )}
 
           {!loading && prices.length > 0 && (
-            <div className="space-y-2">
+            <>
               <p className="text-xs text-gray-400 mb-3 uppercase tracking-wide font-semibold">
                 Alege curierul
               </p>
-              {prices.map((p) => (
-                <div
-                  key={p.service_id}
-                  className="flex items-center gap-4 border border-gray-200 rounded-xl px-4 py-3 hover:border-[#2563EB] hover:bg-blue-50/30 transition-all"
-                >
-                  <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
-                    <Truck size={16} className="text-gray-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sm text-gray-900">{p.courier_name}</p>
-                      <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 whitespace-nowrap">
-                        {p.service_pickup === 'door' ? 'Adresa' : 'Locker'} → {p.service_delivery === 'door' ? 'Adresa' : 'Locker'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-0.5">{p.service_name}{p.delivery_days ? ` · ~${p.delivery_days} zile` : ''}</p>
-                  </div>
-                  <div className="text-right shrink-0 mr-2">
-                    <p className="font-bold text-gray-900">{p.price > 0 ? `${p.price.toFixed(2)} Lei` : '—'}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCreate(p)}
-                    disabled={creating !== null}
-                    className="bg-[#2563EB] text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-[#1D4ED8] transition-colors disabled:opacity-50 flex items-center gap-1.5 shrink-0"
-                  >
-                    {creating === p.service_id ? (
-                      <><Loader2 size={12} className="animate-spin" />Se creeaza...</>
-                    ) : (
-                      'Selecteaza'
-                    )}
-                  </button>
+              <div className="overflow-y-auto max-h-[340px] pr-1 -mr-1">
+                <div className="grid grid-cols-2 gap-2">
+                  {prices.map((p) => (
+                    <button
+                      key={p.service_id}
+                      onClick={() => handleCreate(p)}
+                      disabled={creating !== null}
+                      className="flex flex-col gap-2 border border-gray-200 rounded-xl p-3 hover:border-[#2563EB] hover:bg-blue-50/40 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <p className="font-bold text-sm text-gray-900 leading-tight">{p.courier_name}</p>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 whitespace-nowrap shrink-0">
+                          {p.service_pickup === 'door' ? 'Adr' : 'Lkr'} → {p.service_delivery === 'door' ? 'Adr' : 'Lkr'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 leading-tight line-clamp-2">{p.service_name}</p>
+                      <div className="flex items-center justify-between mt-auto pt-1 border-t border-gray-100">
+                        <span className="font-bold text-sm text-[#2563EB]">
+                          {p.price > 0 ? `${p.price.toFixed(2)} Lei` : '—'}
+                        </span>
+                        {creating === p.service_id
+                          ? <Loader2 size={13} className="animate-spin text-gray-400" />
+                          : <span className="text-[11px] text-gray-400">{p.delivery_days ? `~${p.delivery_days}z` : ''}</span>
+                        }
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
 
