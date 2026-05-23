@@ -13,7 +13,6 @@ export const orderSchema = z.object({
     .string()
     .min(10, 'Adresa trebuie sa aiba cel putin 10 caractere'),
   quantity: z.number().min(1).max(5),
-  notes: z.string().optional(),
 });
 
 export type OrderFormData = z.infer<typeof orderSchema>;

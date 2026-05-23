@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
-import { X, User, Phone, MapPin, Home, Hash, Loader2, Banknote, Zap } from 'lucide-react';
+import { X, User, Phone, MapPin, Home, Loader2, Banknote, Zap } from 'lucide-react';
 import { useOrderModal } from '@/hooks/useOrderModal';
 import { orderSchema, OrderFormData } from '@/lib/validations';
 import { JUDETE } from '@/lib/types';
@@ -191,13 +191,6 @@ export default function OrderModal() {
                   <input {...register('customer_address')} placeholder="Strada, nr., bloc, ap." className={inputCls} />
                 </IconInput>
                 {errors.customer_address && <p className="text-xs text-red-500 mt-0.5">{errors.customer_address.message}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Observatii <span className="text-gray-400 font-normal">(optional)</span></label>
-                <IconInput icon={Hash} error={false}>
-                  <input {...register('notes')} placeholder="Detalii suplimentare livrare" className={inputCls} />
-                </IconInput>
               </div>
 
               {/* PRIORITY UPSELL */}

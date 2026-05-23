@@ -4,7 +4,7 @@
  * Base URL: https://ws.woot.ro/test
  */
 
-const WOOT_BASE = 'https://ws.woot.ro/test';
+const WOOT_BASE = 'https://ws.woot.ro/latest';
 
 // Module-level token cache (server-side)
 let cachedToken: string | null = null;

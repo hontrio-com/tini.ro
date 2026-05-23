@@ -77,8 +77,7 @@ export default function ConfirmareClient() {
           Comanda inregistrata cu succes!
         </h1>
         <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-          {name ? `Multumim, ${name.split(' ')[0]}!` : 'Multumim!'} Te vom contacta in maxim{' '}
-          <strong className="text-[#0A0A0A]">24 de ore</strong> pentru confirmarea livrarii.
+          {name ? `Multumim, ${name.split(' ')[0]}!` : 'Multumim!'} Tine telefonul la indemana &mdash; curierul te va suna inainte de livrare.
         </p>
 
         {/* Order summary */}
@@ -114,7 +113,7 @@ export default function ConfirmareClient() {
         <div className="flex items-start gap-3 bg-blue-50 rounded-xl p-4 mb-6 text-left">
           <Phone size={16} className="text-blue-500 mt-0.5 shrink-0" />
           <p className="text-xs text-blue-700 leading-relaxed">
-            Vei primi un apel de confirmare pe numarul furnizat. Asigura-te ca telefonul este accesibil.
+            Asigura-te ca telefonul este la indemana &mdash; curierul te va suna inainte sa ajunga.
           </p>
         </div>
 
