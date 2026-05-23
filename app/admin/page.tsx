@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LogIn, Download, RefreshCw, Loader2, TrendingUp, Package,
   Calendar, DollarSign, Truck, X, FileText, CheckCircle2, AlertCircle,
-  Pencil, Trash2, CheckCircle, XCircle,
+  Pencil, Trash2, CheckCircle, XCircle, Eye, Users, Globe,
 } from 'lucide-react';
 import { Order, OrderStatus, JUDETE } from '@/lib/types';
 import type { WootPrice } from '@/lib/woot';
@@ -351,6 +351,12 @@ export default function AdminPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [stats, setStats] = useState<{ counts: Record<string, number>; total: number; revenue: number } | null>(null);
+  const [views, setViews] = useState<{
+    total: number; uniqueTotal: number;
+    todayTotal: number; todayUnique: number;
+    weekTotal: number; weekUnique: number;
+    topSources: { source: string; count: number }[];
+  } | null>(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('admin_token');
@@ -374,8 +380,12 @@ export default function AdminPage() {
   }, []);
 
   const fetchStats = useCallback(async (tok: string) => {
-    const res = await fetch('/api/admin?stats=true', { headers: { 'x-admin-token': tok } });
-    if (res.ok) setStats(await res.json());
+    const [sRes, vRes] = await Promise.all([
+      fetch('/api/admin?stats=true', { headers: { 'x-admin-token': tok } }),
+      fetch('/api/admin?views=true', { headers: { 'x-admin-token': tok } }),
+    ]);
+    if (sRes.ok) setStats(await sRes.json());
+    if (vRes.ok) setViews(await vRes.json());
   }, []);
 
   useEffect(() => {
@@ -620,6 +630,59 @@ export default function AdminPage() {
               <p className="text-xs text-gray-400 mt-0.5">{pct(status)}% din total</p>
             </div>
           ))}
+        </div>
+
+        {/* Vizionari */}
+        <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Eye size={16} className="text-[#2563EB]" />
+            <h2 className="font-bold text-gray-900 text-sm">Vizionari pagina</h2>
+            <span className="text-xs text-gray-400 ml-1">(ultimele 30 zile — surse)</span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+            {[
+              { label: 'Azi', value: views?.todayTotal ?? '—', sub: `${views?.todayUnique ?? '—'} unici`, icon: Eye, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: 'Aceasta sapt.', value: views?.weekTotal ?? '—', sub: `${views?.weekUnique ?? '—'} unici`, icon: Calendar, color: 'text-purple-600', bg: 'bg-purple-50' },
+              { label: 'Total vizionari', value: views?.total ?? '—', sub: `${views?.uniqueTotal ?? '—'} unici`, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
+              { label: 'Vizitatori unici', value: views?.uniqueTotal ?? '—', sub: 'toate timpurile', icon: Users, color: 'text-amber-600', bg: 'bg-amber-50' },
+            ].map(({ label, value, sub, icon: Icon, color, bg }) => (
+              <div key={label} className={`${bg} rounded-xl p-4 col-span-1`}>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Icon size={13} className={color} />
+                  <span className={`text-xs font-semibold ${color}`}>{label}</span>
+                </div>
+                <p className={`text-2xl font-black ${color}`}>{value}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+              </div>
+            ))}
+
+            {/* Top surse */}
+            <div className="col-span-2 bg-gray-50 rounded-xl p-4">
+              <div className="flex items-center gap-1.5 mb-3">
+                <Globe size={13} className="text-gray-500" />
+                <span className="text-xs font-semibold text-gray-600">Top surse trafic (30 zile)</span>
+              </div>
+              {views?.topSources?.length ? (
+                <div className="space-y-1.5">
+                  {views.topSources.map(({ source, count }) => {
+                    const maxCount = views.topSources[0].count;
+                    return (
+                      <div key={source} className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600 w-24 truncate shrink-0">{source}</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                          <div className="bg-[#2563EB] h-full rounded-full" style={{ width: `${(count / maxCount) * 100}%` }} />
+                        </div>
+                        <span className="text-xs font-semibold text-gray-700 w-6 text-right shrink-0">{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400">Nu exista date inca</p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Filters */}

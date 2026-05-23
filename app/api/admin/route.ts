@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const supabase = createServerClient();
 
-  // Stats mode: return counts + revenue per status
+  // Stats comenzi
   if (searchParams.get('stats') === 'true') {
     const { data, error } = await supabase.from('orders').select('status, total_price');
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -27,6 +27,44 @@ export async function GET(req: NextRequest) {
       revenue += Number(row.total_price);
     }
     return NextResponse.json({ counts, total: data?.length ?? 0, revenue });
+  }
+
+  // Stats vizionari
+  if (searchParams.get('views') === 'true') {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const monthStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [allRows, todayRows, weekRows, sourcesRows] = await Promise.all([
+      supabase.from('page_views').select('session_id', { count: 'exact' }),
+      supabase.from('page_views').select('session_id').gte('created_at', todayStart),
+      supabase.from('page_views').select('session_id').gte('created_at', weekStart),
+      supabase.from('page_views').select('utm_source').gte('created_at', monthStart).not('utm_source', 'is', null),
+    ]);
+
+    const uniqueSessions = (rows: { session_id: string }[] | null) =>
+      new Set((rows ?? []).map((r) => r.session_id)).size;
+
+    const sourceCounts: Record<string, number> = {};
+    for (const row of sourcesRows.data ?? []) {
+      const s = row.utm_source || 'direct';
+      sourceCounts[s] = (sourceCounts[s] || 0) + 1;
+    }
+    const topSources = Object.entries(sourceCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([source, count]) => ({ source, count }));
+
+    return NextResponse.json({
+      total: allRows.count ?? 0,
+      uniqueTotal: uniqueSessions(allRows.data ?? []),
+      todayTotal: todayRows.data?.length ?? 0,
+      todayUnique: uniqueSessions(todayRows.data ?? []),
+      weekTotal: weekRows.data?.length ?? 0,
+      weekUnique: uniqueSessions(weekRows.data ?? []),
+      topSources,
+    });
   }
 
   const status = searchParams.get('status');

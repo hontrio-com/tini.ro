@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
+import PageTracker from '@/components/PageTracker';
 import './globals.css';
 
 const inter = Inter({
@@ -71,6 +72,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
+        <PageTracker />
         {children}
         <Toaster
           position="top-center"
