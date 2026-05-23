@@ -116,6 +116,8 @@ export interface WootPrice {
   price: number;
   currency: string;
   delivery_days?: number;
+  service_pickup: string;
+  service_delivery: string;
 }
 
 export async function getShippingPrices(order: {
@@ -167,6 +169,8 @@ export async function getShippingPrices(order: {
     price: parseFloat(String(s.final_total ?? s.total ?? s.price ?? 0)),
     currency: 'RON',
     delivery_days: s.delivery_days as number ?? undefined,
+    service_pickup: s.service_pickup as string ?? 'door',
+    service_delivery: s.service_delivery as string ?? 'door',
   }));
 }
 

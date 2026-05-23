@@ -163,12 +163,16 @@ function AwbModal({ order, token, onClose, onCreated }: AwbModalProps) {
                     <Truck size={16} className="text-gray-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-900">{p.courier_name}</p>
-                    <p className="text-xs text-gray-400">{p.service_name}{p.delivery_days ? ` · ~${p.delivery_days} zile` : ''}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm text-gray-900">{p.courier_name}</p>
+                      <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 whitespace-nowrap">
+                        {p.service_pickup === 'door' ? 'Adresa' : 'Locker'} → {p.service_delivery === 'door' ? 'Adresa' : 'Locker'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5">{p.service_name}{p.delivery_days ? ` · ~${p.delivery_days} zile` : ''}</p>
                   </div>
                   <div className="text-right shrink-0 mr-2">
-                    <p className="font-bold text-gray-900">{p.price.toFixed(2)}</p>
-                    <p className="text-xs text-gray-400">{p.currency}</p>
+                    <p className="font-bold text-gray-900">{p.price > 0 ? `${p.price.toFixed(2)} Lei` : '—'}</p>
                   </div>
                   <button
                     onClick={() => handleCreate(p)}
