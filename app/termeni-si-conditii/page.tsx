@@ -41,11 +41,11 @@ export default function TermeniSiConditii() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">2. Definiții</h2>
             <ul className="space-y-1 list-disc pl-5">
-              <li><strong>„Comerciant"</strong> – SC VOID SFT GAMES SRL, cu datele de mai sus.</li>
-              <li><strong>„Consumator"</strong> – orice persoană fizică ce acționează în afara activității sale profesionale sau comerciale, care plasează o comandă pe site.</li>
-              <li><strong>„Contract la distanță"</strong> – contractul încheiat între comerciant și consumator în cadrul unui sistem de vânzare la distanță organizat, fără prezența fizică simultană a părților, conform OUG nr. 34/2014.</li>
-              <li><strong>„Produs"</strong> – Ventilatorul Portabil 3-în-1 comercializat pe site.</li>
-              <li><strong>„Site"</strong> – platforma web disponibilă la adresa tini.ro.</li>
+              <li><strong>{`„Comerciant"`}</strong> – SC VOID SFT GAMES SRL, cu datele de mai sus.</li>
+              <li><strong>{`„Consumator"`}</strong> – orice persoană fizică ce acționează în afara activității sale profesionale sau comerciale, care plasează o comandă pe site.</li>
+              <li><strong>{`„Contract la distanță"`}</strong> – contractul încheiat între comerciant și consumator în cadrul unui sistem de vânzare la distanță organizat, fără prezența fizică simultană a părților, conform OUG nr. 34/2014.</li>
+              <li><strong>{`„Produs"`}</strong> – Ventilatorul Portabil 3-în-1 comercializat pe site.</li>
+              <li><strong>{`„Site"`}</strong> – platforma web disponibilă la adresa tini.ro.</li>
             </ul>
           </section>
 
@@ -86,7 +86,7 @@ export default function TermeniSiConditii() {
             <ol className="mt-2 list-decimal pl-5 space-y-1">
               <li>Consumatorul selectează produsul și cantitatea dorită;</li>
               <li>Completează datele de livrare (nume, telefon, județ, localitate, adresă);</li>
-              <li>Confirmă comanda prin apăsarea butonului „Plată la livrare";</li>
+              <li>Confirmă comanda prin apăsarea butonului {`„Plată la livrare"`};</li>
               <li>Comerciantul procesează comanda și contactează consumatorul pentru confirmare dacă este necesar;</li>
               <li>Produsul este expediat prin curier la adresa indicată.</li>
             </ol>

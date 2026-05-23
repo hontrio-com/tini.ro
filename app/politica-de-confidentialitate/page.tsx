@@ -113,7 +113,7 @@ export default function PoliticaDeConfidentialitate() {
             <ul className="mt-2 list-disc pl-5 space-y-2">
               <li><strong>Dreptul de acces (art. 15 GDPR)</strong> – puteți solicita confirmarea dacă vă prelucrăm datele și o copie a acestora.</li>
               <li><strong>Dreptul la rectificare (art. 16 GDPR)</strong> – puteți solicita corectarea datelor inexacte sau incomplete.</li>
-              <li><strong>Dreptul la ștergere / „dreptul de a fi uitat" (art. 17 GDPR)</strong> – puteți solicita ștergerea datelor, în măsura în care nu există obligații legale care să ne impună păstrarea acestora.</li>
+              <li><strong>{`Dreptul la ștergere / „dreptul de a fi uitat" (art. 17 GDPR)`}</strong> – puteți solicita ștergerea datelor, în măsura în care nu există obligații legale care să ne impună păstrarea acestora.</li>
               <li><strong>Dreptul la restricționarea prelucrării (art. 18 GDPR)</strong> – puteți solicita limitarea prelucrării datelor în anumite circumstanțe.</li>
               <li><strong>Dreptul la portabilitatea datelor (art. 20 GDPR)</strong> – puteți solicita datele furnizate într-un format structurat, utilizat în mod curent și citibil automat.</li>
               <li><strong>Dreptul la opoziție (art. 21 GDPR)</strong> – vă puteți opune prelucrării bazate pe interesul legitim al operatorului.</li>

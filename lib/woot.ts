@@ -159,7 +159,7 @@ export async function createWootOrder(
     total_price: number;
     notes?: string | null;
   },
-  courierName: string
+  _courierName: string
 ): Promise<WootOrderResult> {
   const sender_id = await getSenderId();
 
