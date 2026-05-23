@@ -129,16 +129,14 @@ export async function getShippingPrices(order: {
   console.log('WOOT prices raw:', JSON.stringify(data));
   const raw: Array<Record<string, unknown>> = Array.isArray(data) ? data : (data.list ?? data.services ?? []);
 
-  return raw
-    .map((s) => ({
-      service_id: s.service_id as number,
-      service_name: s.service_name as string ?? '',
-      courier_name: s.courier_name as string ?? '',
-      price: parseFloat(String(s.final_total ?? s.total ?? s.price ?? 0)),
-      currency: 'RON',
-      delivery_days: s.delivery_days as number ?? undefined,
-    }))
-    .filter((s) => s.price > 0);
+  return raw.map((s) => ({
+    service_id: s.service_id as number,
+    service_name: s.service_name as string ?? '',
+    courier_name: s.courier_name as string ?? '',
+    price: parseFloat(String(s.final_total ?? s.total ?? s.price ?? 0)),
+    currency: 'RON',
+    delivery_days: s.delivery_days as number ?? undefined,
+  }));
 }
 
 // --- Create order (AWB) ---
