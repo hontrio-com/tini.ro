@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LogIn, Download, RefreshCw, Loader2, TrendingUp, Package,
   Calendar, DollarSign, Truck, X, FileText, CheckCircle2, AlertCircle,
+  Pencil, Trash2, CheckCircle, XCircle,
 } from 'lucide-react';
-import { Order, OrderStatus } from '@/lib/types';
+import { Order, OrderStatus, JUDETE } from '@/lib/types';
 import type { WootPrice } from '@/lib/woot';
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -28,6 +29,136 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
 };
 
 const STATUSES: Array<OrderStatus | 'toate'> = ['toate', 'noua', 'in_livrare', 'neridicata', 'anulata', 'nu_a_raspuns', 'livrata'];
+
+// ── Edit Modal ────────────────────────────────────────────────────────────────
+
+interface EditModalProps {
+  order: Order;
+  token: string;
+  onClose: () => void;
+  onSaved: (updated: Order) => void;
+}
+
+function EditModal({ order, token, onClose, onSaved }: EditModalProps) {
+  const [form, setForm] = useState({
+    customer_name: order.customer_name,
+    customer_phone: order.customer_phone,
+    customer_county: order.customer_county,
+    customer_city: order.customer_city,
+    customer_address: order.customer_address,
+    quantity: order.quantity,
+    total_price: order.total_price,
+    status: order.status,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ id: order.id, ...form }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Eroare la salvare');
+      onSaved({ ...order, ...form });
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Eroare');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inp = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#2563EB] transition-colors';
+  const lbl = 'block text-xs font-semibold text-gray-600 mb-1';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10 max-h-[90vh] overflow-y-auto"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl">
+          <h2 className="font-bold text-gray-900">Editeaza comanda <span className="text-gray-400 font-mono text-sm">#{order.id.slice(0, 8).toUpperCase()}</span></h2>
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+            <X size={16} className="text-gray-500" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={lbl}>Nume</label>
+              <input className={inp} value={form.customer_name} onChange={(e) => setForm((f) => ({ ...f, customer_name: e.target.value }))} />
+            </div>
+            <div>
+              <label className={lbl}>Telefon</label>
+              <input className={inp} value={form.customer_phone} onChange={(e) => setForm((f) => ({ ...f, customer_phone: e.target.value }))} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={lbl}>Judet</label>
+              <select className={inp} value={form.customer_county} onChange={(e) => setForm((f) => ({ ...f, customer_county: e.target.value }))}>
+                {JUDETE.map((j) => <option key={j} value={j}>{j}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Oras</label>
+              <input className={inp} value={form.customer_city} onChange={(e) => setForm((f) => ({ ...f, customer_city: e.target.value }))} />
+            </div>
+          </div>
+
+          <div>
+            <label className={lbl}>Adresa</label>
+            <input className={inp} value={form.customer_address} onChange={(e) => setForm((f) => ({ ...f, customer_address: e.target.value }))} />
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className={lbl}>Cantitate</label>
+              <input type="number" min={1} max={10} className={inp} value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: parseInt(e.target.value) || 1 }))} />
+            </div>
+            <div>
+              <label className={lbl}>Total (Lei)</label>
+              <input type="number" step="0.01" className={inp} value={form.total_price} onChange={(e) => setForm((f) => ({ ...f, total_price: parseFloat(e.target.value) || 0 }))} />
+            </div>
+            <div>
+              <label className={lbl}>Status</label>
+              <select className={inp} value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as OrderStatus }))}>
+                {(Object.entries(STATUS_LABELS) as [OrderStatus, string][]).map(([val, label]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {error && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg p-3">
+              <AlertCircle size={14} className="text-red-500 shrink-0" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 pb-5 flex gap-3">
+          <button onClick={onClose} className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+            Anuleaza
+          </button>
+          <button onClick={handleSave} disabled={saving} className="flex-1 bg-[#2563EB] text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-[#1D4ED8] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+            Salveaza
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 function StatCard({ label, value, icon: Icon, color }: {
   label: string; value: string | number; icon: React.ElementType; color: string;
@@ -215,6 +346,11 @@ export default function AdminPage() {
 
   const [awbModalOrder, setAwbModalOrder] = useState<Order | null>(null);
   const [downloadingAwb, setDownloadingAwb] = useState<string | null>(null);
+  const [editOrder, setEditOrder] = useState<Order | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [stats, setStats] = useState<{ counts: Record<string, number>; total: number; revenue: number } | null>(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('admin_token');
@@ -237,9 +373,14 @@ export default function AdminPage() {
     }
   }, []);
 
+  const fetchStats = useCallback(async (tok: string) => {
+    const res = await fetch('/api/admin?stats=true', { headers: { 'x-admin-token': tok } });
+    if (res.ok) setStats(await res.json());
+  }, []);
+
   useEffect(() => {
-    if (token) fetchOrders(token, filter);
-  }, [token, filter, fetchOrders]);
+    if (token) { fetchOrders(token, filter); fetchStats(token); }
+  }, [token, filter, fetchOrders, fetchStats]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -276,6 +417,24 @@ export default function AdminPage() {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await fetch(`/api/admin?id=${id}`, { method: 'DELETE', headers: { 'x-admin-token': token! } });
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+      setConfirmDeleteId(null);
+      if (token) fetchStats(token);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleEdited = (updated: Order) => {
+    setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+    setEditOrder(null);
+    if (token) fetchStats(token);
   };
 
   const handleAwbCreated = (orderId: string, wootOrderId: string, awb: string, courier: string) => {
@@ -336,9 +495,13 @@ export default function AdminPage() {
 
   const today = new Date().toDateString();
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const totalValue = orders.reduce((acc, o) => acc + Number(o.total_price), 0);
   const todayCount = orders.filter((o) => new Date(o.created_at).toDateString() === today).length;
   const weekCount = orders.filter((o) => new Date(o.created_at).getTime() > weekAgo).length;
+
+  const totalOrders = stats?.total ?? 0;
+  const totalRevenue = stats?.revenue ?? 0;
+  const cnt = (s: string) => stats?.counts[s] ?? 0;
+  const pct = (s: string) => totalOrders > 0 ? ((cnt(s) / totalOrders) * 100).toFixed(1) : '0.0';
 
   // ── Login screen ───────────────────────────────────────────────────────────
 
@@ -390,15 +553,12 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
-      {/* AWB Modal */}
       <AnimatePresence>
         {awbModalOrder && (
-          <AwbModal
-            order={awbModalOrder}
-            token={token}
-            onClose={() => setAwbModalOrder(null)}
-            onCreated={handleAwbCreated}
-          />
+          <AwbModal order={awbModalOrder} token={token} onClose={() => setAwbModalOrder(null)} onCreated={handleAwbCreated} />
+        )}
+        {editOrder && (
+          <EditModal order={editOrder} token={token} onClose={() => setEditOrder(null)} onSaved={handleEdited} />
         )}
       </AnimatePresence>
 
@@ -433,12 +593,33 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Total comenzi" value={total} icon={Package} color="bg-blue-50 text-blue-600" />
-          <StatCard label="Valoare (Lei)" value={totalValue.toFixed(0)} icon={DollarSign} color="bg-green-50 text-green-600" />
+        {/* Stats — row 1: financiar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <StatCard label="Total comenzi" value={totalOrders} icon={Package} color="bg-blue-50 text-blue-600" />
+          <StatCard label="Venit total (Lei)" value={totalRevenue.toFixed(0)} icon={DollarSign} color="bg-green-50 text-green-600" />
           <StatCard label="Comenzi azi" value={todayCount} icon={Calendar} color="bg-amber-50 text-amber-600" />
           <StatCard label="Aceasta saptamana" value={weekCount} icon={TrendingUp} color="bg-purple-50 text-purple-600" />
+        </div>
+
+        {/* Stats — row 2: rate livrare */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-8">
+          {([
+            { label: 'Livrate', status: 'livrata', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
+            { label: 'In livrare', status: 'in_livrare', color: 'text-amber-600', bg: 'bg-amber-50', icon: Truck },
+            { label: 'Noi', status: 'noua', color: 'text-blue-600', bg: 'bg-blue-50', icon: Package },
+            { label: 'Neridicata', status: 'neridicata', color: 'text-orange-600', bg: 'bg-orange-50', icon: XCircle },
+            { label: 'Nu raspuns', status: 'nu_a_raspuns', color: 'text-purple-600', bg: 'bg-purple-50', icon: XCircle },
+            { label: 'Anulate', status: 'anulata', color: 'text-red-600', bg: 'bg-red-50', icon: XCircle },
+          ] as const).map(({ label, status, color, bg, icon: Icon }) => (
+            <div key={status} className={`${bg} rounded-xl p-4`}>
+              <div className="flex items-center gap-2 mb-1">
+                <Icon size={14} className={color} />
+                <span className={`text-xs font-semibold ${color}`}>{label}</span>
+              </div>
+              <p className={`text-2xl font-black ${color}`}>{cnt(status)}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{pct(status)}% din total</p>
+            </div>
+          ))}
         </div>
 
         {/* Filters */}
@@ -474,7 +655,7 @@ export default function AdminPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
-                    {['ID', 'Data', 'Client', 'Telefon', 'Adresa', 'Cant', 'Total', 'Status', 'AWB'].map((h) => (
+                    {['ID', 'Data', 'Client', 'Telefon', 'Adresa', 'Cant', 'Total', 'Status', 'AWB', ''].map((h) => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
                         {h}
                       </th>
@@ -536,10 +717,7 @@ export default function AdminPage() {
                               className="p-1.5 rounded-md hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
                               title="Descarca eticheta PDF"
                             >
-                              {downloadingAwb === order.id
-                                ? <Loader2 size={13} className="animate-spin" />
-                                : <FileText size={13} />
-                              }
+                              {downloadingAwb === order.id ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} />}
                             </button>
                           </div>
                         ) : (
@@ -550,6 +728,34 @@ export default function AdminPage() {
                             <Truck size={11} />
                             Genereaza AWB
                           </button>
+                        )}
+                      </td>
+
+                      {/* Edit / Delete */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {confirmDeleteId === order.id ? (
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => handleDelete(order.id)}
+                              disabled={deletingId === order.id}
+                              className="flex items-center gap-1 bg-red-500 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-60"
+                            >
+                              {deletingId === order.id ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                              Sigur
+                            </button>
+                            <button onClick={() => setConfirmDeleteId(null)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                              <X size={13} className="text-gray-400" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => setEditOrder(order)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Editeaza">
+                              <Pencil size={13} className="text-gray-400 hover:text-gray-700" />
+                            </button>
+                            <button onClick={() => setConfirmDeleteId(order.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="Sterge definitiv">
+                              <Trash2 size={13} className="text-gray-400 hover:text-red-500" />
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
