@@ -1,15 +1,17 @@
 /**
  * WOOT Courier API helper
  * Docs: https://ws.woot.ro/latest/
- * Base URL: https://ws.woot.ro/test
  */
 
 const WOOT_BASE = 'https://ws.woot.ro/latest';
+const ROMANIA_COUNTRY_ID = 189;
 
-// Module-level token cache (server-side)
+// Module-level cache (server-side)
 let cachedToken: string | null = null;
 let tokenExpiry = 0;
 let cachedSenderId: number | null = null;
+let cachedCounties: Array<{ id: number; name: string; code: string }> | null = null;
+const cachedCities: Record<number, Array<{ id: number; name: string }>> = {};
 
 // --- Auth ---
 
@@ -65,6 +67,30 @@ export async function getSenderId(): Promise<number> {
   return cachedSenderId;
 }
 
+// --- City ID lookup ---
+
+async function getCityId(cityName: string, countyName: string): Promise<number | null> {
+  if (!cachedCounties) {
+    const res = await wootFetch('/general/counties');
+    if (!res.ok) return null;
+    cachedCounties = await res.json();
+  }
+  const county = cachedCounties!.find(
+    (c) => c.name.toLowerCase() === countyName.toLowerCase()
+  );
+  if (!county) return null;
+
+  if (!cachedCities[county.id]) {
+    const res = await wootFetch(`/general/cities?county_id=${county.id}`);
+    if (!res.ok) return null;
+    cachedCities[county.id] = await res.json();
+  }
+  const city = cachedCities[county.id].find(
+    (c) => c.name.toLowerCase() === cityName.toLowerCase()
+  );
+  return city?.id ?? null;
+}
+
 // --- Parcel builder ---
 
 function buildParcels(quantity: number) {
@@ -101,7 +127,10 @@ export async function getShippingPrices(order: {
   quantity: number;
   total_price: number;
 }): Promise<WootPrice[]> {
-  const sender_id = await getSenderId();
+  const [sender_id, city_id] = await Promise.all([
+    getSenderId(),
+    getCityId(order.customer_city, order.customer_county),
+  ]);
 
   const res = await wootFetch('/orders/prices', {
     method: 'POST',
@@ -111,12 +140,14 @@ export async function getShippingPrices(order: {
         company: 0,
         contact: order.customer_name,
         phone: order.customer_phone,
-        country_id: 1, // Romania
+        country_id: ROMANIA_COUNTRY_ID,
         county: order.customer_county,
         city: order.customer_city,
+        ...(city_id ? { city_id } : {}),
         address: order.customer_address,
       },
       parcels: buildParcels(order.quantity),
+      repayment: order.total_price,
     }),
   });
 
@@ -159,7 +190,10 @@ export async function createWootOrder(
     notes?: string | null;
   }
 ): Promise<WootOrderResult> {
-  const sender_id = await getSenderId();
+  const [sender_id, city_id] = await Promise.all([
+    getSenderId(),
+    getCityId(order.customer_city, order.customer_county),
+  ]);
 
   const res = await wootFetch('/orders', {
     method: 'POST',
@@ -170,9 +204,10 @@ export async function createWootOrder(
         company: 0,
         contact: order.customer_name,
         phone: order.customer_phone,
-        country_id: 1,
+        country_id: ROMANIA_COUNTRY_ID,
         county: order.customer_county,
         city: order.customer_city,
+        ...(city_id ? { city_id } : {}),
         address: order.customer_address,
       },
       parcels: buildParcels(order.quantity),
