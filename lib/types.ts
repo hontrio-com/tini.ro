@@ -1,4 +1,4 @@
-export type OrderStatus = 'noua' | 'confirmata' | 'in_livrare' | 'livrata' | 'anulata';
+export type OrderStatus = 'noua' | 'in_livrare' | 'neridicata' | 'anulata' | 'nu_a_raspuns' | 'livrata';
 
 export interface Order {
   id: string;

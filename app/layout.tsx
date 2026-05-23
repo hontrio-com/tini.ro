@@ -28,6 +28,10 @@ export const metadata: Metadata = {
     title: 'Ventilator Portabil 3-in-1',
     description: 'Racorire, umidificare si iluminare LED. Plata la livrare.',
   },
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
   robots: {
     index: true,
     follow: true,

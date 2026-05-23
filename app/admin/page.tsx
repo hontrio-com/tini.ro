@@ -11,21 +11,23 @@ import type { WootPrice } from '@/lib/woot';
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   noua: 'Noua',
-  confirmata: 'Confirmata',
   in_livrare: 'In livrare',
-  livrata: 'Livrata',
+  neridicata: 'Neridicata',
   anulata: 'Anulata',
+  nu_a_raspuns: 'Nu a raspuns',
+  livrata: 'Livrata cu succes',
 };
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
   noua: 'bg-blue-100 text-blue-800',
-  confirmata: 'bg-green-100 text-green-800',
   in_livrare: 'bg-amber-100 text-amber-800',
-  livrata: 'bg-gray-100 text-gray-800',
+  neridicata: 'bg-orange-100 text-orange-800',
   anulata: 'bg-red-100 text-red-800',
+  nu_a_raspuns: 'bg-purple-100 text-purple-800',
+  livrata: 'bg-green-100 text-green-800',
 };
 
-const STATUSES: Array<OrderStatus | 'toate'> = ['toate', 'noua', 'confirmata', 'in_livrare', 'livrata', 'anulata'];
+const STATUSES: Array<OrderStatus | 'toate'> = ['toate', 'noua', 'in_livrare', 'neridicata', 'anulata', 'nu_a_raspuns', 'livrata'];
 
 function StatCard({ label, value, icon: Icon, color }: {
   label: string; value: string | number; icon: React.ElementType; color: string;
