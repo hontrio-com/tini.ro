@@ -117,7 +117,6 @@ export async function getShippingPrices(order: {
         address: order.customer_address,
       },
       parcels: buildParcels(order.quantity),
-      repayment: order.total_price,
     }),
   });
 
