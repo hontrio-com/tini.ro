@@ -54,7 +54,7 @@ async function wootFetch(path: string, init: RequestInit = {}): Promise<Response
 export async function getSenderId(): Promise<number> {
   if (cachedSenderId) return cachedSenderId;
 
-  const res = await wootFetch('/addresses/sender');
+  const res = await wootFetch('/addresses/sender?page=1&limit=10');
   if (!res.ok) throw new Error(`WOOT get sender failed [${res.status}]`);
 
   const data = await res.json();
