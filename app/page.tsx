@@ -12,6 +12,7 @@ import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
 import OrderModal from '@/components/OrderModal';
 import StickyBar from '@/components/StickyBar';
+import TikTokViewContent from '@/components/TikTokViewContent';
 
 function ReviewsSkeleton() {
   return (
@@ -47,6 +48,7 @@ function ReviewsSkeleton() {
 export default function Home() {
   return (
     <main className="bg-[#FAFAFA]">
+      <TikTokViewContent price={99} />
       <AnnouncementBar />
       <Header />
       <Hero />

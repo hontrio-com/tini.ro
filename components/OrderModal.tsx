@@ -11,6 +11,7 @@ import { X, User, Phone, MapPin, Home, Loader2, Banknote, Zap } from 'lucide-rea
 import { useOrderModal } from '@/hooks/useOrderModal';
 import { orderSchema, OrderFormData } from '@/lib/validations';
 import { JUDETE } from '@/lib/types';
+import { ttqInitiateCheckout, ttqPlaceAnOrder } from '@/lib/tiktok-pixel';
 
 const PRICE_TIERS = [
   { qty: 1, label: '1 x Ventilator 3-in-1', productPrice: 99, transport: 20, img: '/1bucata.webp' },
@@ -56,12 +57,13 @@ export default function OrderModal() {
     if (isOpen) {
       document.addEventListener('keydown', handler);
       document.body.style.overflow = 'hidden';
+      ttqInitiateCheckout(tier.productPrice);
     }
     return () => {
       document.removeEventListener('keydown', handler);
       document.body.style.overflow = '';
     };
-  }, [isOpen, close]);
+  }, [isOpen, close, tier.productPrice]);
 
   const onSubmit = async (data: OrderFormData) => {
     try {
@@ -85,6 +87,7 @@ export default function OrderModal() {
       close();
       reset();
       setPriority(true);
+      await ttqPlaceAnOrder(finalTotal, data.customer_phone);
       router.push(`/confirmare?${new URLSearchParams({ name: data.customer_name, qty: data.quantity.toString(), total: finalTotal.toString(), orderId: json.orderId || '' })}`);
     } catch {
       toast.error('Eroare de retea. Verifica conexiunea si incearca din nou.');
