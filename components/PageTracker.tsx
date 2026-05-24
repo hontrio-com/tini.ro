@@ -23,6 +23,10 @@ export default function PageTracker() {
       const sid = getSessionId();
       const params = new URLSearchParams(window.location.search);
 
+      // Salveaza ttclid daca vizitatorul vine de pe TikTok
+      const ttclid = params.get('ttclid');
+      if (ttclid) sessionStorage.setItem('ttclid', ttclid);
+
       fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

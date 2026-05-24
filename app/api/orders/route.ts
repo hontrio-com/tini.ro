@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase-server';
+import { sendTikTokEvent } from '@/lib/tiktok-events-api';
 
 const orderSchema = z.object({
   customer_name: z.string().min(3),
@@ -13,6 +14,7 @@ const orderSchema = z.object({
   notes: z.string().optional(),
   utm_source: z.string().optional(),
   utm_campaign: z.string().optional(),
+  ttclid: z.string().optional(),
 });
 
 // In-memory rate limiting (per IP, per hour)
@@ -86,6 +88,19 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    // TikTok Events API — server-side, event_id = orderId pentru deduplicare cu pixelul
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tini.ro';
+    sendTikTokEvent({
+      event: 'PlaceAnOrder',
+      event_id: order.id,
+      value: data.total_price,
+      ip,
+      user_agent: req.headers.get('user-agent') || '',
+      page_url: `${siteUrl}/confirmare`,
+      phone: data.customer_phone,
+      ttclid: data.ttclid,
+    });
 
     return NextResponse.json({ success: true, orderId: order.id }, { status: 201 });
   } catch (err) {

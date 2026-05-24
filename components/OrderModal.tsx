@@ -77,6 +77,7 @@ export default function OrderModal() {
           total_price: finalTotal,
           utm_source: urlParams.get('utm_source') || undefined,
           utm_campaign: urlParams.get('utm_campaign') || undefined,
+          ttclid: urlParams.get('ttclid') || sessionStorage.getItem('ttclid') || undefined,
         }),
       });
       const json = await res.json();
@@ -87,7 +88,7 @@ export default function OrderModal() {
       close();
       reset();
       setPriority(true);
-      await ttqPlaceAnOrder(finalTotal, data.customer_phone);
+      await ttqPlaceAnOrder(finalTotal, data.customer_phone, json.orderId);
       router.push(`/confirmare?${new URLSearchParams({ name: data.customer_name, qty: data.quantity.toString(), total: finalTotal.toString(), orderId: json.orderId || '' })}`);
     } catch {
       toast.error('Eroare de retea. Verifica conexiunea si incearca din nou.');

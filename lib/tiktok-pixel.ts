@@ -40,7 +40,7 @@ export function ttqInitiateCheckout(price: number) {
   } catch {}
 }
 
-export async function ttqPlaceAnOrder(value: number, phone?: string) {
+export async function ttqPlaceAnOrder(value: number, phone?: string, eventId?: string) {
   try {
     if (!window.ttq) return;
     if (phone) {
@@ -51,6 +51,7 @@ export async function ttqPlaceAnOrder(value: number, phone?: string) {
       contents: [PRODUCT],
       value,
       currency: 'RON',
+      ...(eventId ? { event_id: eventId } : {}),
     });
   } catch {}
 }
