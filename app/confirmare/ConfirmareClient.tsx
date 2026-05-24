@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CheckCircle, ArrowLeft, Phone, Package } from 'lucide-react';
 import Link from 'next/link';
+import { ttqPlaceAnOrder } from '@/lib/tiktok-pixel';
 
 export default function ConfirmareClient() {
   const params = useSearchParams();
@@ -18,7 +19,8 @@ export default function ConfirmareClient() {
 
   useEffect(() => {
     setShowConfetti(true);
-  }, []);
+    ttqPlaceAnOrder(parseFloat(total) || 0, undefined, orderId || undefined);
+  }, [total, orderId]);
 
   const shortId = orderId ? orderId.slice(0, 8).toUpperCase() : 'N/A';
 
