@@ -18,7 +18,24 @@ export default function ConfirmareClient() {
 
   useEffect(() => {
     setShowConfetti(true);
-  }, []);
+
+    // TikTok Pixel — eveniment conversie
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ttq = (window as any).ttq;
+      if (ttq) {
+        ttq.track('PlaceAnOrder', {
+          value: parseFloat(total) || 0,
+          currency: 'RON',
+          quantity: parseInt(qty) || 1,
+          content_id: 'ventilator-3in1',
+          content_type: 'product',
+        });
+      }
+    } catch {
+      // fail silently
+    }
+  }, [total, qty]);
 
   const shortId = orderId ? orderId.slice(0, 8).toUpperCase() : 'N/A';
 
