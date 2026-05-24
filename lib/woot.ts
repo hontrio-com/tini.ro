@@ -159,7 +159,6 @@ export async function getShippingPrices(order: {
   }
 
   const data = await res.json();
-  console.log('WOOT prices raw:', JSON.stringify(data));
   const raw: Array<Record<string, unknown>> = Array.isArray(data) ? data : (data.list ?? data.services ?? []);
 
   return raw.map((s) => ({
