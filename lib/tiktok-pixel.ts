@@ -30,6 +30,16 @@ export function ttqViewContent(price: number) {
   } catch {}
 }
 
+export function ttqAddToCart(price: number) {
+  try {
+    window.ttq?.track('AddToCart', {
+      contents: [PRODUCT],
+      value: price,
+      currency: 'RON',
+    });
+  } catch {}
+}
+
 export function ttqInitiateCheckout(price: number) {
   try {
     window.ttq?.track('InitiateCheckout', {
